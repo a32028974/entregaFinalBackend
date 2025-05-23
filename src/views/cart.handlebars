@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carrito</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1>🛒 Carrito</h1>
+      <button id="btnVaciar" class="btn btn-danger">Vaciar carrito</button>
+    </div>
+
+    {{#if cart.products.length}}
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+        {{#each cart.products}}
+          <div class="col">
+            <div class="card shadow-sm h-100">
+              <div class="card-body">
+                <h5 class="card-title">{{this.product.title}}</h5>
+                <p class="card-text"><strong>Descripción:</strong> {{this.product.description}}</p>
+                <p class="card-text"><strong>Precio:</strong> ${{this.product.price}}</p>
+                <p class="card-text"><strong>Cantidad:</strong> 
+                  <button class="btn btn-sm btn-outline-secondary btn-restar" data-id="{{this.product._id}}">−</button>
+                  <span class="mx-2">{{this.quantity}}</span>
+                  <button class="btn btn-sm btn-outline-secondary btn-sumar" data-id="{{this.product._id}}">+</button>
+                </p>
+                <button class="btn btn-sm btn-outline-danger btn-eliminar" data-id="{{this.product._id}}">Eliminar</button>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      </div>
+
+      <div class="mt-5 p-3 bg-white border rounded shadow-sm">
+        <h4 class="text-end">💰 Total del carrito: <span class="text-success">${{total}}</span></h4>
+      </div>
+    {{else}}
+      <div class="alert alert-warning mt-4">Este carrito está vacío.</div>
+    {{/if}}
+  </div>
+
+  <script>
+    const cartId = "{{cart._id}}";
+
+    // Sumar cantidad
+    document.querySelectorAll('.btn-sumar').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pid = btn.dataset.id;
+        fetch(`/api/carts/${cartId}/products/${pid}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quantity: 1 }) // suma 1
+        }).then(() => location.reload());
+      });
+    });
+
+    // Restar cantidad
+    document.querySelectorAll('.btn-restar').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pid = btn.dataset.id;
+        fetch(`/api/carts/${cartId}/products/${pid}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quantity: -1 }) // resta 1
+        }).then(() => location.reload());
+      });
+    });
+
+    // Eliminar producto
+    document.querySelectorAll('.btn-eliminar').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pid = btn.dataset.id;
+        fetch(`/api/carts/${cartId}/products/${pid}`, {
+          method: 'DELETE'
+        }).then(() => location.reload());
+      });
+    });
+
+    // Vaciar carrito
+    document.getElementById('btnVaciar').addEventListener('click', () => {
+      fetch(`/api/carts/${cartId}`, { method: 'DELETE' }).then(() => location.reload());
+    });
+    // Confirmar compra
+document.getElementById('btnComprar').addEventListener('click', async () => {
+  try {
+    const confirmacion = confirm('¿Estás seguro de confirmar la compra?');
+    if (!confirmacion) return;
+
+    const response = await fetch(`/api/carts/${cartId}/purchase`, {
+      method: 'POST'
+    });
+
+    const data = await response.json();
+    alert(data.message);
+    location.reload();
+  } catch (err) {
+    console.error(err);
+    alert('❌ Error al confirmar la compra');
+  }
+});
+
+
+  </script>
+
+<div class="mt-4 text-end">
+  <button id="btnComprar" class="btn btn-success">✅ Confirmar compra</button>
+</div>
+
+</body>
+</html>

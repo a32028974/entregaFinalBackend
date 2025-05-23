@@ -1,0 +1,21 @@
+<h1>Productos en Tiempo Real</h1>
+
+<form id="formAgregar">
+  <input type="text" name="title" placeholder="Nombre del producto" required />
+  <input type="number" name="price" placeholder="Precio" required />
+  <button type="submit">Agregar Producto</button>
+</form>
+
+<form id="formEliminar">
+  <input type="text" name="id" placeholder="ID del producto a eliminar" required />
+  <button type="submit">Eliminar Producto</button>
+</form>
+
+<h2>Lista actual</h2>
+<ul id="listaProductos"></ul>
+
+<a href="/">Volver al inicio</a>
+
+<!-- Scripts para usar WebSocket -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/realtime.js"></script>
